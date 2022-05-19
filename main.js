@@ -69,7 +69,17 @@ class Image {
     }
 }
 
+function colorToRGB(color) {
+    let d = document.createElement("div");
+    d.style.color = color;
+    document.body.appendChild(d);
+    let rgbColor = window.getComputedStyle(d).color;
+    d.remove();
+    return rgbColor;
+}
+
 function transition(imageOne, imageTwo, delay = 10) {
+
     console.log("testing things");
     if (imageOne.points.length != imageTwo.points.length) {
         console.log("this function does not work with different sized objects yet");
@@ -126,16 +136,20 @@ function transition(imageOne, imageTwo, delay = 10) {
         }, delay);
     }
     move();
-
-    
-    
-
 }
 
 let one = new Image([[100, 100], [200, 200], [100, 200], [200, 100]], "black", 2);
-let two = new Image([[200, 100], [200, 200], [300, 100], [300, 200]], "red", 2);
+let two = new Image([[100, 1000], [200, 140], [100, 200], [200, 100]], "red", 2);
 
-transition(one, two, 0);
+function wait() {
+    one.render();
+    two.render();
+    setTimeout(() => {
+        transition(one, two, 0);
+    }, 2000);
+}
+
+wait();
 
 
 
