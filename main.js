@@ -79,7 +79,7 @@ function colorToRGB(color) {
 }
 
 function transition(imageOne, imageTwo, delay = 10) {
-
+    let framesForRender = 100;
     console.log("testing things");
     if (imageOne.points.length != imageTwo.points.length) {
         console.log("this function does not work with different sized objects yet");
@@ -91,9 +91,8 @@ function transition(imageOne, imageTwo, delay = 10) {
     let values = [];
     console.log(imageOne.points, imageTwo.points);
     for (var i = 0; i < imageOne.points.length; ++i) {
-        values = reduce(imageTwo.points[i].x - imageOne.points[i].x, imageTwo.points[i].y - imageOne.points[i].y);
-        dx.push(values[0]);
-        dy.push(values[1]);
+        dx.push((imageTwo.points[i].x - imageOne.points[i].x) / framesForRender);
+        dy.push((imageTwo.points[i].y - imageOne.points[i].y) / framesForRender);
     }
 
     let points = [];
@@ -110,11 +109,10 @@ function transition(imageOne, imageTwo, delay = 10) {
     }
 
     
-    function move() {
+    function move(frame = 0) {
         let stillGoing = false;
         clear();
         translationImage.render();
-        // THIS IS FOR TESTING ONLY
         
 
         for (var ii = 0; ii < dx.length; ++ii) {
@@ -124,22 +122,22 @@ function transition(imageOne, imageTwo, delay = 10) {
             translationImage.points[ii].x += dx[ii];
             translationImage.points[ii].y += dy[ii];
 
-            if (translationImage.points[ii].x == imageTwo.points[ii].x && 
-                translationImage.points[ii].y == imageTwo.points[ii].y) {
-                    todo[ii] = 0;
-                }
+            // if (translationImage.points[ii].x == imageTwo.points[ii].x && 
+            //     translationImage.points[ii].y == imageTwo.points[ii].y) {
+            //         todo[ii] = 0;
+            //     }
         }
 
-        if (!stillGoing) return;
+        if (frame == framesForRender) return;
         setTimeout(() => {
-            move();
+            move(frame + 1);
         }, delay);
     }
     move();
 }
 
-let one = new Image([[100, 100], [200, 200], [100, 200], [200, 100]], "black", 2);
-let two = new Image([[100, 1000], [200, 140], [100, 200], [200, 100]], "red", 2);
+// let one = new Image([[100, 100], [200, 200], [100, 200], [200, 100]], "black", 2);
+// let two = new Image([[100, 500], [200, 140], [100, 200], [200, 100]], "red", 2);
 
 function wait() {
     one.render();
@@ -149,8 +147,30 @@ function wait() {
     }, 2000);
 }
 
-wait();
+// wait();
 
+let one = new Image([], "black", 2);
+let two = new Image([], "red", 2);
 
+screen.addEventListener("mousedown", (event) => {
+    console.log(event.x, event.y);
+    console.log(event.button);
+    switch (event.button) {
+        case 0:
+            one.addPoint(event.x, event.y);
+            one.render();
+            break;
+        case 2:
+            two.addPoint(event.x, event.y);
+            two.render();
+            break;
+    }
+});
 
-
+document.addEventListener("keypress", (event) => {
+    console.log(event.key);
+    if (event.key == "t") {
+        console.log("testing things");
+        transition(one, two, 0);
+    }
+})
