@@ -79,56 +79,92 @@ function colorToRGB(color) {
 }
 
 function transition(imageOne, imageTwo, delay = 10) {
-    let framesForRender = 100;
-    console.log("testing things");
-    if (imageOne.points.length != imageTwo.points.length) {
-        console.log("this function does not work with different sized objects yet");
-        return;
+    let framesForRender = 1000;
+    // if (imageOne.points.length != imageTwo.points.length) {
+    //     console.log("one: ", imageOne.points.length);
+    //     console.log("two: ", imageTwo.points.length);
+    //     console.log("this function does not work with different sized objects yet");
+    //     return;
+    // }
+
+    let finalPoints = [];
+    for (var i = 0; i < imageTwo.points.length; ++i) {
+        finalPoints.push([imageTwo.points[i].x, imageTwo.points[i].y]);
     }
 
-    let dx = [];
-    let dy = [];
-    let values = [];
-    console.log(imageOne.points, imageTwo.points);
-    for (var i = 0; i < imageOne.points.length; ++i) {
-        dx.push((imageTwo.points[i].x - imageOne.points[i].x) / framesForRender);
-        dy.push((imageTwo.points[i].y - imageOne.points[i].y) / framesForRender);
-    }
+    let finalImage = new Image(finalPoints, imageTwo.color, imageTwo.thickness);
+
+    let startCount = imageOne.points.length;
+    let endCount = finalImage.points.length;
 
     let points = [];
     for (var i = 0; i < imageOne.points.length; ++i) {
         points.push([imageOne.points[i].x, imageOne.points[i].y]);
     }
+    let translationImage = new Image(points, "blue", imageOne.thickness); 
 
-    let translationImage = new Image(points, "blue", imageOne.thickness);
-    console.log(dx, dy, translationImage);
-    let todo = [];
+    if (startCount <= endCount) {
+        while (true) {
+            for (var i = 0; i < translationImage.points.length - 1; i += 2) {
+                if (startCount == endCount) break;
     
-    for (var i = 0; i < dx.length; ++i) {
-        todo.push(1);
+                translationImage.points.splice(i + 1, 0, new Point((translationImage.points[i].x + translationImage.points[i + 1].x) / 2, 
+                                                               (translationImage.points[i].y + translationImage.points[i + 1].y) / 2));
+    
+                ++startCount;
+            }
+            if (startCount == endCount) break;        
+        }
+    } else {
+        while (true) {
+            for (var i = 0; i < finalImage.points.length - 1; i += 2) {
+                if (endCount == startCount) break;
+    
+                finalImage.points.splice(i + 1, 0, new Point((finalImage.points[i].x + finalImage.points[i + 1].x) / 2, 
+                                                         (finalImage.points[i].y + finalImage.points[i + 1].y) / 2));
+    
+                ++endCount;
+            }
+            if (endCount == startCount) break;        
+        }
+    }
+
+    console.log(finalImage);
+
+    
+
+    let dx = [];
+    let dy = [];
+    for (var i = 0; i < translationImage.points.length; ++i) {
+        dx.push((finalImage.points[i].x - translationImage.points[i].x) / framesForRender);
+        dy.push((finalImage.points[i].y - translationImage.points[i].y) / framesForRender);
     }
 
     
+
+    
     function move(frame = 0) {
-        let stillGoing = false;
         clear();
         translationImage.render();
         
 
         for (var ii = 0; ii < dx.length; ++ii) {
-            if (!todo[ii]) continue;
             stillGoing = true;
 
             translationImage.points[ii].x += dx[ii];
             translationImage.points[ii].y += dy[ii];
 
-            // if (translationImage.points[ii].x == imageTwo.points[ii].x && 
-            //     translationImage.points[ii].y == imageTwo.points[ii].y) {
+            // if (translationImage.points[ii].x == finalImage.points[ii].x && 
+            //     translationImage.points[ii].y == finalImage.points[ii].y) {
             //         todo[ii] = 0;
             //     }
         }
 
-        if (frame == framesForRender) return;
+        if (frame == framesForRender) {
+            imageOne.render();
+            imageTwo.render();
+            return;
+        };
         setTimeout(() => {
             move(frame + 1);
         }, delay);
@@ -172,5 +208,6 @@ document.addEventListener("keypress", (event) => {
     if (event.key == "t") {
         console.log("testing things");
         transition(one, two, 0);
+        
     }
 })
