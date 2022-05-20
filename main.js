@@ -189,15 +189,17 @@ let one = new Image([], "black", 2);
 let two = new Image([], "red", 2);
 
 screen.addEventListener("mousedown", (event) => {
-    console.log(event.x, event.y);
-    console.log(event.button);
+    let rect = screen.getBoundingClientRect();
+    let x = event.x - rect.x;
+    let y = event.y - rect.y;
+
     switch (event.button) {
         case 0:
-            one.addPoint(event.x, event.y);
+            one.addPoint(x, y);
             one.render();
             break;
         case 2:
-            two.addPoint(event.x, event.y);
+            two.addPoint(x, y);
             two.render();
             break;
     }
